@@ -97,24 +97,25 @@ CREATE TABLE public.user_friends
   friend_user_id character varying(50)
 );
 
-CREATE TABLE user_location_estimate (
-user_id varchar(50),
-latitude double precision,
-longitude double precision,
-neighborhood text,
-address text,
-city character varying(50),
-state character varying(20),
-postal_code character varying(10)
-);
 
-CREATE TABLE user_location_estimate2 (
-user_id varchar(50),
-latitude double precision,
-longitude double precision,
-neighborhood text,
-address text,
-city character varying(50),
-state character varying(20),
-postal_code character varying(10)
-);
+*********************************************
+INSERT INTO secondary_stats_1 (user_id) select user_id from _user;
+
+UPDATE secondary_stats_1
+SET friend_count = temp.cnt
+from (select user_id, count(user_id) as cnt from user_friends group by user_id) as temp
+where temp.user_id = secondary_stats_1.user_id;
+
+UPDATE secondary_stats_1
+SET friend_count = 0
+where friend_count is NULL;
+
+*********************************************
+UPDATE secondary_stats_1
+SET tips_count = temp.cnt
+from (select user_id, count(user_id) as cnt from tip group by user_id) as temp
+where temp.user_id = secondary_stats_1.user_id;
+
+UPDATE secondary_stats_1
+SET tips_count = 0
+where tips_count is NULL;

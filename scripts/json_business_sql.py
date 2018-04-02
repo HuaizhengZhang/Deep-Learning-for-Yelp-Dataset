@@ -17,7 +17,7 @@ import psycopg2
 import json
 
 # Open a connection to the database
-db_conn = psycopg2.connect("dbname='yelp_13' host='localhost' user='yelp13' password='123456'")
+db_conn = psycopg2.connect("dbname='yelp_db' host='localhost' user='yelp13' password='123456'")
 
 # Initialize an empty list for temporarily holding a JSON object
 data = []
@@ -27,15 +27,16 @@ with open('../dataset/dataset/business.json') as fileobject:
     for line in fileobject:
         data = json.loads(line)
 
+
         # Parse the JSON object in your database
         cur = db_conn.cursor()
         cur.execute(
-            "insert into Business (business_id, name, neighborhood, address, city, state, postal_code, latitude, longitude, stars, review_count, is_open, attributes, hours, type) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            "insert into Business (business_id, name, neighborhood, address, city, state, postal_code, latitude, longitude, stars, review_count, is_open, attributes, hours) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
             (data['business_id'], data['name'], data['neighborhood'], data['address'], data['city'], data['state'],
              data['postal_code'], data['latitude'], data['longitude'], data['stars'], data['review_count'],
-             data['is_open'], data['attributes'], data['hours'], data['type']))
+             data['is_open'], json.dumps(data['attributes']), json.dumps(data['hours'])))
         db_conn.commit()
-        # print(data['user_id'])
+        print data['business_id']
 
 # Close database connection
 db_conn.close()
